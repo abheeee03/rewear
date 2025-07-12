@@ -8,83 +8,10 @@ datasource db {
 }
 
 model User {
-  id              String       @id @default(cuid())
-  name            String
-  email           String       @unique
-  password        String
-  profile_photo_url String?
-  points          Int          @default(0)
-  created_at      DateTime     @default(now())
-  items           Item[]
-  swapsRequested  Swap[]       @relation("RequestedBy")
-  swapsReceived   Swap[]       @relation("RequestedTo")
-  redemptions     Redemption[]
-}
-
-model Item {
-  id          String      @id @default(cuid())
-  title       String
-  description String
-  category    String
-  size        String
-  condition   String
-  tags        String[]
-  status      ItemStatus  @default(PENDING)
-  isFeatured  Boolean     @default(false)
-  createdBy   User        @relation(fields: [userId], references: [id])
-  userId      String
-  createdAt   DateTime    @default(now())
-  images      ItemImage[]
-  swapsOffered Swap[]      @relation("OfferedItem")
-  swapsRequested Swap[]    @relation("RequestedItem")
-  redemption  Redemption?
-  pointValue  Int         @default(50)
-}
-
-model ItemImage {
-  id       String @id @default(cuid())
-  imageUrl String
-  item     Item   @relation(fields: [itemId], references: [id])
-  itemId   String
-}
-
-model Swap {
-  id            String      @id @default(cuid())
-  offeredItem   Item        @relation("OfferedItem", fields: [offeredItemId], references: [id])
-  offeredItemId String
-  requestedItem Item        @relation("RequestedItem", fields: [requestedItemId], references: [id])
-  requestedItemId String
-  requestedBy   User        @relation("RequestedBy", fields: [requestedById], references: [id])
-  requestedById String
-  requestedTo   User        @relation("RequestedTo", fields: [requestedToId], references: [id])
-  requestedToId String
-  status        SwapStatus  @default(PENDING)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-}
-
-model Redemption {
-  id          String    @id @default(cuid())
-  item        Item      @relation(fields: [itemId], references: [id])
-  itemId      String    @unique
-  user        User      @relation(fields: [userId], references: [id])
-  userId      String
-  pointsSpent Int
-  createdAt   DateTime  @default(now())
-}
-
-enum ItemStatus {
-  PENDING
-  APPROVED
-  REJECTED
-  REDEEMED
-  SWAPPED
-}
-
-enum SwapStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
-  COMPLETED
-  CANCELLED
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
