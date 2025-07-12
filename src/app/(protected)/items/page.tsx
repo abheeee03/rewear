@@ -12,7 +12,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Filter, Search, Plus } from 'lucide-react';
-import { CardCarousel } from '@/components/ui/carousel';
 
 // Define categories for filtering
 const categories = ['All', 'Tops', 'Bottoms', 'Dresses', 'Outerwear', 'Shoes', 'Accessories'];
@@ -24,6 +23,7 @@ async function getItems(category?: string) {
       : {};
       
     const items = await prisma.item.findMany({
+      where,
       include: {
         images: true,
         createdBy: {
@@ -50,38 +50,51 @@ export default async function ItemsPage({
 }) {
   const category = searchParams.category || 'All';
   const items = await getItems(category === 'All' ? undefined : category);
-  const featured = items.filter((item) => item.isFeatured == true);
-  
-  const images = featured.map(item => ({
-    src: item.images[0]?.imageUrl || '/images/placeholder.jpg',
-    alt: item.title
-  }));
 
-  // Fallback images if no featured items
-  if (images.length === 0) {
-    images.push(
-      { src: "/card/1.png", alt: "Image 1" },
-      { src: "/card/2.png", alt: "Image 2" },
-      { src: "/card/3.png", alt: "Image 3" }
-    );
-  }
-  
   return (
-    <div className="container py-6 px-20">
+    <div className="container py-6 px-30">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-bold">Browse Items</h1>
+          <p className="text-muted-foreground mt-1">
+            Find your next favorite piece of clothing
+          </p>
+        </div>
+        <Button asChild>
+          <Link href="/add" className="flex items-center">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Item
+          </Link>
+        </Button>
+      </div>
 
-        <div className="mb-10">
-          <h1 className='text-3xl font-semibold text-center mb-4'>Featured Collection</h1>
-          <CardCarousel
-          images={images}
-          autoplayDelay={2000}
-        showPagination={true}
-        showNavigation={true}
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+        <div className="relative flex-grow">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search items..."
+            className="pl-8"
           />
         </div>
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <Select defaultValue={category}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((cat) => (
+                <SelectItem key={cat} value={cat}>
+                  {cat}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-
-      <div className=""><h1 className='text-3xl font-semibold mb-10'>Browse More </h1></div>
-            {/* Active filters */}
+      {/* Active filters */}
       {category !== 'All' && (
         <div className="flex items-center gap-2 mb-6">
           <span className="text-sm text-muted-foreground">Filters:</span>
